@@ -52,54 +52,54 @@ int main(int argc, char *argv[])
 
     /* execute the program */
     while (1) {
-        // fetch the instruction to execute.
+        /* fetch the instruction to execute. */
         currInstr = state.mem[state.pc];
         counter++;
 
         opcode = currInstr >> 22 & 0b111;
-        arg0 = currInstr >> 19 & 0b111; // regA
-        arg1 = currInstr >> 16 & 0b111; // regB
+        arg0 = currInstr >> 19 & 0b111; /* regA */
+        arg1 = currInstr >> 16 & 0b111; /* regB */
 
 
-        // printState before executing an instruction
+        /* printState before executing an instruction */
         printState(&state);
 
         switch(opcode){
-        // add
+        /* add */
         case 0:
             arg2 = currInstr & 0b111;
             state.reg[arg2] = state.reg[arg0] + state.reg[arg1];
             break;
-        // nor
+        /* nor */
         case 1:
             arg2 = currInstr & 0b111;
             state.reg[arg2] = ~(state.reg[arg0] | state.reg[arg1]);
             break;
-        // lw
+        /* lw */
         case 2:
             arg2 = convertNum(currInstr & 0xffff);
             state.reg[arg1] = state.mem[arg2 + state.reg[arg0]];
             break;
-        // sw
+        /* sw */
         case 3:
             arg2 = convertNum(currInstr & 0xffff);
             state.mem[arg2 + state.reg[arg0]] = state.reg[arg1];
             break;
-        // beq
+        /* beq */
         case 4:
             arg2 = convertNum(currInstr & 0xffff);
             if (state.reg[arg0] == state.reg[arg1])
                 state.pc += arg2;
             break;
-        // jalr
+        /* jalr */
         case 5:
             state.reg[arg1] = state.pc + 1;
             state.pc = state.reg[arg0] - 1;
             break;
-        // halt
+        /* halt */
         case 6:
             goto HALT;
-        // noop
+        /* noop */
         case 7:
             break;
         }

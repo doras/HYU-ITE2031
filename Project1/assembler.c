@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    // create label list
+    /* create label list */
     labelList = initList();
 
     /* Pass 1 : calculate the address for every symbolic label */
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     /* Pass 2 : generate a machine-language instruction */
     
-    // At first, rewinding the input file
+    /* At first, rewinding the input file */
     rewind(inFilePtr);
 
     while ( readAndParse(inFilePtr, label, opcode, arg0, arg1, arg2) ) {
@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
                     exit(1);
                 }
                 argint2 = findAddr(labelList, arg2);
-                // address of label is always fit in 16-bits.
-                // because the memory size is 65536 word.
+                /* address of label is always fit in 16-bits. */
+                /* because the memory size is 65536 word. */
                 resultMc = 0b010 << 22 | encodeIType(argint0, argint1, argint2);
             }
         } else if (!strcmp(opcode, "sw")) {
@@ -103,8 +103,8 @@ int main(int argc, char *argv[])
                     exit(1);
                 }
                 argint2 = findAddr(labelList, arg2);
-                // address of label is always fit in 16-bits.
-                // because the memory size is 65536 word.
+                /* address of label is always fit in 16-bits. */
+                /* because the memory size is 65536 word. */
                 resultMc = 0b011 << 22 | encodeIType(argint0, argint1, argint2);
             }
         } else if (!strcmp(opcode, "beq")) {
@@ -139,7 +139,6 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        // fprintf(outFilePtr, "%x\n", resultMc);
         fprintf(outFilePtr, "%d\n", resultMc);
 
         counter++;
@@ -250,7 +249,6 @@ void freeList(list* head)
     while(head) {
         temp = head;
         head = head->next;
-// printf("list addr:%d, label:%-7s\n", temp->addr, temp->label);
         free(temp);
     }
 }
