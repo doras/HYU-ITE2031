@@ -1,0 +1,63 @@
+@@@
+state before cycle 149 starts
+	pc 27
+	data memory:
+		dataMem[ 0 ] 8454168
+		dataMem[ 1 ] 8519705
+		dataMem[ 2 ] 8585242
+		dataMem[ 3 ] 29360128
+		dataMem[ 4 ] 65540
+		dataMem[ 5 ] 29360128
+		dataMem[ 6 ] 29360128
+		dataMem[ 7 ] 29360128
+		dataMem[ 8 ] 2424837
+		dataMem[ 9 ] 786436
+		dataMem[ 10 ] 1245186
+		dataMem[ 11 ] 29360128
+		dataMem[ 12 ] 29360128
+		dataMem[ 13 ] 29360128
+		dataMem[ 14 ] 16908295
+		dataMem[ 15 ] 29360128
+		dataMem[ 16 ] 29360128
+		dataMem[ 17 ] 29360128
+		dataMem[ 18 ] 16842741
+		dataMem[ 19 ] 29360128
+		dataMem[ 20 ] 29360128
+		dataMem[ 21 ] 29360128
+		dataMem[ 22 ] 12910619
+		dataMem[ 23 ] 25165824
+		dataMem[ 24 ] 1
+		dataMem[ 25 ] 10
+		dataMem[ 26 ] -1
+		dataMem[ 27 ] 55			// <- Output Result
+	registers:
+		reg[ 0 ] 0
+		reg[ 1 ] 1
+		reg[ 2 ] 0
+		reg[ 3 ] -1
+		reg[ 4 ] 11
+		reg[ 5 ] 55
+		reg[ 6 ] 0
+		reg[ 7 ] 0
+	IFID:
+		instruction data 7 7 65535
+		pcPlus1 27
+	IDEX:
+		instruction add 0 0 10
+		pcPlus1 26
+		readRegA 0
+		readRegB 0
+		offset 10
+	EXMEM:
+		instruction add 0 0 1
+		branchTarget 26
+		aluResult 0
+		readRegB 0
+	MEMWB:
+		instruction halt 0 0 0
+		writeData 0
+	WBEND:
+		instruction sw 0 5 27
+		writeData 0
+Machine halted
+Total of 149 cycles executed

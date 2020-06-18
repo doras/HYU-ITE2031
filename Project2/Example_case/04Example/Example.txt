@@ -1,0 +1,62 @@
+*** Please Do Not use any printf() in the submission files.
+
+*** Check-lists
+* (채점기준을 의미하는 것은 아닙니다.)
+1. Check the number of memory printed.
+2. Check if the instrMem is initialized to the instr and the data. (But, The instrMem will never be changed from its initial value.)
+3. Check if the dataMem is initialized to the instr and the data. (But, The dataMem can be changed by the sw instr.)
+4. Check if PC and Register is initialized to zero.
+5. Check if all pipeline instruction field is initialized to the noop instruction.
+6. Check if your simulator is working right about No hazards.
+7. Check if your simulator is working right about any hazards.
+8. Check if your simulator is halted when the halt instruction reached the MEM/WB stage.
+
+*** Hazards
+1. Data hazard   (Example case 1, 2)
+2. Branch hazard (Example case 3)
+
+*** Explanation about Example instruction(Example.as).
+* Please notice that the Example Case in this does NOT mean covering all of any hazards.
+
+                      Instructions    //  comments
+	instrMem[ 0 ] lw 0 2 21       //  
+	instrMem[ 1 ] lw 0 3 22       //  
+	instrMem[ 2 ] lw 0 4 23       //  Example Case 1 of Data Hazard.
+	instrMem[ 3 ] add 2 4 5       //  This instr is stalled for 1-cycle using the noop instr and then after 1-cycle, when this instr is in the EX stage, the writeData in MEM/WB pipeline register is forwarded to the ALU's input B in EX stage. (Important thing is that you should NOT forward to Reg4 or readRegB. Just forward to the ALU's inputs.)
+	instrMem[ 4 ] noop 0 0 0      //  Don't care this instr. This instr is inserted to remove the data hazard caused by instrMem[3].
+	instrMem[ 5 ] noop 0 0 0      //  Don't care this instr. This instr is inserted to remove the data hazard caused by instrMem[3].
+	instrMem[ 6 ] noop 0 0 0      //  Don't care this instr. This instr is inserted to remove the data hazard caused by instrMem[3].
+	instrMem[ 7 ] add 3 4 5       //  Example Case 2 of Data Hazard.
+	instrMem[ 8 ] add 3 5 6       //  The ALU's input B of this instruction is forwarded from the ALU's result in the EX/MEM pipeline register. Result : (5 add 15) = 20
+	instrMem[ 9 ] nor 0 5 7       //  The ALU's input B of this instruction is forwarded from the writeData in the MEM/WB pipeline register.    Result : (5 nor 15) = -16
+	instrMem[ 10 ] noop 0 0 0     //  Don't care this instr. This instr is inserted to remove the data hazard caused by instrMem[9].
+	instrMem[ 11 ] noop 0 0 0     //  Don't care this instr. This instr is inserted to remove the data hazard caused by instrMem[9].
+	instrMem[ 12 ] noop 0 0 0     //  Don't care this instr. This instr is inserted to remove the data hazard caused by instrMem[9].
+	instrMem[ 13 ] beq 1 2 6      //  Example Case 3 of Branch Hazard.
+	instrMem[ 14 ] nor 5 6 7      //  Don't care this instr. Just To show 3-cycle stall.
+	instrMem[ 15 ] nor 3 4 7      //  Don't care this instr. Just To show 3-cycle stall.
+	instrMem[ 16 ] add 3 2 7      //  Don't care this instr. Just To show 3-cycle stall.
+	instrMem[ 17 ] add 1 5 7      //  Don't care this instr. Just To show 3-cycle stall.
+	instrMem[ 18 ] add 1 2 1      //  reg1 = reg1 + 1 -> Just 1 iteration for a loop.
+        instrMem[ 19 ] beq 0 0 65529  //  Example Case 3 of Branch Hazard.
+        instrMem[ 20 ] halt 0 0 0     //  the program is halted.
+        instrMem[ 21 ] add 0 0 1      //  
+        instrMem[ 22 ] add 0 0 5      //  
+        instrMem[ 23 ] add 0 0 10     //  
+
+*** Explanation about Example result(Example_output.txt).
+
+1. Example Case 1 (line 286, line 344, line 402, line 460)
+   line 286 : At this cycle, the data hazard is occured by the instructions of [lw 0 4 23] and [add 2 4 5].
+   line 344 : Therefore, [add 2 4 5] instruction is stalled for 1-cycle and the noop instr is inserted in the ID stage.
+   line 402 : B/c the data hazard is occured, the ALU's input B must be forwarded from the writeData in the WB stage. (readRegA + readRegB = 1 -> X), (readRegA + writeData = 11 -> O)
+   line 460 : As you can see, The aluResult is 11.
+
+2. Example Case 2 (line 692, line 750, line 808)
+   line 692 : At this cycle, There are two data hazards occured by ( [add 3 4 5],[add 3 5 6] ), ( [add 3 4 5],[nor 0 5 7] ). About first one, The ALU's result in the EX/MEM pipeline register is forwarded to the ALU's input B in EX stage. (readRegA + readRegB = 16 -> X), (readRegA + alutResult = 20 -> O)
+   line 750 : As you can see, The ALU's result in the EX/MEM pipeline register is 20. And about the another data hazard, The writeData in the MEM/WB pipeline register is forwarded to the ALU's input B in EX stage. (readRegA nor readRegB = -12 -> X), (readRegA nor writeData = -16 -> O)
+   line 808 : As you can see, The ALU's result in the EX/MEM pipeline register is -16.
+
+3. Example Case 3 (line 1388, line 1446)
+   line 1388 : At this cycle, [beq 0 0 65529] instruction is in the MEM stage and it is determined as 'taken'.
+   line 1446 : Therefore each of IF, ID, EX stage is stalled for 1-cycle.
