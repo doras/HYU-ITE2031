@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     char line[MAXLINELENGTH];
     stateType state, newState;
     FILE *filePtr;
-    int i;
+    int i, aluInput0, aluInput1;
 
     if (argc != 2) {
         printf("error: usage: %s <machine-code file>\n", argv[0]);
@@ -151,10 +151,79 @@ int main(int argc, char *argv[])
         newState.IDEX.readRegB = state.reg[field1(state.IFID.instr)];
         newState.IDEX.offset = convertNum(field2(state.IFID.instr));
 
+                
+        /* Load-Use data hazard detection and stall */
+        if (opcode(state.IDEX.instr) == 2 && 
+                (field1(state.IDEX.instr) == field0(state.IFID.instr) 
+                    || field1(state.IDEX.instr) == field1(state.IFID.instr))) {
+            newState.IDEX.instr = NOOPINSTRUCTION;
+            newState.pc = state.pc;
+            newState.IFID = state.IFID;
+        }
+
         /* --------------------- EX stage --------------------- */
 
+        aluInput0 = state.IDEX.readRegA;
+        aluInput1 = state.IDEX.readRegB;
+        if (opcode(state.IDEX.instr) == 2 || opcode(state.IDEX.instr) == 3) {
+            aluInput1 = state.IDEX.offset;
+        }
+
+        /* Data hazard detection & forwarding */
+        /* FOR Rs */
+            /* if EX hazard */
+            if (((opcode(state.EXMEM.instr) == 0 || opcode(state.EXMEM.instr) == 1) 
+                    && field2(state.EXMEM.instr) != 0 && field2(state.EXMEM.instr) == field0(fieldstate.IDEX.instr))
+                || (opcode(state.EXMEM.instr) == 2 && field1(state.EXMEM.instr) != 0 
+                    && field1(state.EXMEM.instr) == field0(fieldstate.IDEX.instr))) {
+                
+                aluInput0 = state.EXMEM.aluResult;
+            }
+            /* if MEM hazard no EX hazard */
+            else if (((opcode(state.MEMWB.instr) == 0 || opcode(state.MEMWB.instr) == 1) 
+                    && field2(state.MEMWB.instr) != 0 && field2(state.MEMWB.instr) == field0(fieldstate.IDEX.instr))
+                || (opcode(state.MEMWB.instr) == 2 && field1(state.MEMWB.instr) != 0 
+                    && field1(state.MEMWB.instr) == field0(fieldstate.IDEX.instr))) {
+                
+                aluInput0 = state.MEMWB.writeData;
+            }
+            /* if WB hazard no EX, MEM hazard */
+            else if (((opcode(state.WBEND.instr) == 0 || opcode(state.WBEND.instr) == 1) 
+                    && field2(state.WBEND.instr) != 0 && field2(state.WBEND.instr) == field0(fieldstate.IDEX.instr))
+                || (opcode(state.WBEND.instr) == 2 && field1(state.WBEND.instr) != 0 
+                    && field1(state.WBEND.instr) == field0(fieldstate.IDEX.instr))) {
+                
+                aluInput0 = state.WBEND.writeData;
+            }
+        /* FOR Rt */
+            /* if EX hazard */
+            if (((opcode(state.EXMEM.instr) == 0 || opcode(state.EXMEM.instr) == 1) 
+                    && field2(state.EXMEM.instr) != 0 && field2(state.EXMEM.instr) == field0(fieldstate.IDEX.instr))
+                || (opcode(state.EXMEM.instr) == 2 && field1(state.EXMEM.instr) != 0 
+                    && field1(state.EXMEM.instr) == field1(fieldstate.IDEX.instr))) {
+                
+                aluInput1 = state.EXMEM.aluResult;
+            }
+            /* if MEM hazard no EX hazard */
+            else if (((opcode(state.MEMWB.instr) == 0 || opcode(state.MEMWB.instr) == 1) 
+                    && field2(state.MEMWB.instr) != 0 && field2(state.MEMWB.instr) == field0(fieldstate.IDEX.instr))
+                || (opcode(state.MEMWB.instr) == 2 && field1(state.MEMWB.instr) != 0 
+                    && field1(state.MEMWB.instr) == field1(fieldstate.IDEX.instr))) {
+                
+                aluInput1 = state.MEMWB.writeData;
+            }
+            /* if WB hazard no EX, MEM hazard */
+            else if (((opcode(state.WBEND.instr) == 0 || opcode(state.WBEND.instr) == 1) 
+                    && field2(state.WBEND.instr) != 0 && field2(state.WBEND.instr) == field0(fieldstate.IDEX.instr))
+                || (opcode(state.WBEND.instr) == 2 && field1(state.WBEND.instr) != 0 
+                    && field1(state.WBEND.instr) == field1(fieldstate.IDEX.instr))) {
+                
+                aluInput1 = state.WBEND.writeData;
+            }
+
+
         /* ALU */
-        switch(opcode(state.IDEX.instr)) {
+        switch (opcode(state.IDEX.instr)) {
         /* add */
         case 0:
             newState.EXMEM.aluResult = state.IDEX.readRegA + state.IDEX.readRegB;
@@ -181,7 +250,7 @@ int main(int argc, char *argv[])
 
         newState.MEMWB.instr = state.EXMEM.instr;
 
-        switch(opcode(state.EXMEM.instr)) {
+        switch (opcode(state.EXMEM.instr)) {
         /* INT : add, nor */
         case 0:
         case 1:
@@ -205,11 +274,11 @@ int main(int argc, char *argv[])
         /* --------------------- WB stage --------------------- */
 
         /* lw */
-        if(opcode(state.MEMWB.instr) == 2) {
+        if (opcode(state.MEMWB.instr) == 2) {
             newState.reg[field1(state.MEMWB.instr)] = state.MEMWB.writeData;
         }
         /* add, nor */
-        else if(opcode(state.MEMWB.instr) == 0 | opcode(state.MEMWB.instr) == 1) {
+        else if (opcode(state.MEMWB.instr) == 0 || opcode(state.MEMWB.instr) == 1) {
             newState.reg[field2(state.MEMWB.instr)] = state.MEMWB.writeData;
         }
 
