@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     char line[MAXLINELENGTH];
     stateType state, newState;
     FILE *filePtr;
-    int op;
+    int i;
 
     if (argc != 2) {
         printf("error: usage: %s <machine-code file>\n", argv[0]);
@@ -97,6 +97,14 @@ int main(int argc, char *argv[])
         }
         state.dataMem[state.numMemory] = state.instrMem[state.numMemory];
         printf("memory[%d]=%d\n", state.numMemory, state.instrMem[state.numMemory]);
+    }
+
+    /* print instruction memory words */
+    printf("%d memory words\n\tinstruction memory:\n", state.numMemory);
+
+    for (i = 0; i < state.numMemory; ++i) {
+        printf("\t\tinstrMem[ %d ] ", i);
+        printInstruction(state.instrMem[i]);
     }
 
     /* initialize */
@@ -161,7 +169,7 @@ int main(int argc, char *argv[])
             break;
         /* lw, sw */
         case 2:
-        case 3
+        case 3:
             newState.EXMEM.aluResult = state.IDEX.readRegA + state.IDEX.offset;
         }
 
@@ -204,6 +212,9 @@ int main(int argc, char *argv[])
         else if(opcode(state.MEMWB.instr) == 0 | opcode(state.MEMWB.instr) == 1) {
             newState.reg[field2(state.MEMWB.instr)] = state.MEMWB.writeData;
         }
+
+        newState.WBEND.instr = state.MEMWB.instr;
+        newState.WBEND.writeData = state.MEMWB.writeData;
 
         
 
