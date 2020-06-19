@@ -272,6 +272,17 @@ int main(int argc, char *argv[])
         case 4:
             if(state.EXMEM.aluResult == 0) {
                 newState.pc = state.EXMEM.branchTarget;
+                newState.EXMEM.instr = NOOPINSTRUCTION;
+                newState.EXMEM.branchTarget = 0;
+                newState.EXMEM.aluResult = 0;
+                newState.EXMEM.readRegB = 0;
+                newState.IDEX.instr = NOOPINSTRUCTION;
+                newState.IDEX.offset = 0;
+                newState.IDEX.pcPlus1 = 0;
+                newState.IDEX.readRegA = 0;
+                newState.IDEX.readRegB = 0;
+                newState.IFID.instr = NOOPINSTRUCTION;
+                newState.IFID.pcPlus1 = 0;
             }
         }
 
