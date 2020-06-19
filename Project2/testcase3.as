@@ -5,5 +5,6 @@
     noop            insert noop to avoid data hazard, 3 of them is minimum number needed because there is no internal forwarding in register file.
     noop            insert noop to avoid data hazard, 3 of them is minimum number needed because there is no internal forwarding in register file.
     nor 3 3 4       $4 = $3 nor $3 = not 3 = -4
+    halt
 one .fill 1
 two .fill 2
