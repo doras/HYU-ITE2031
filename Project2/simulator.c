@@ -157,6 +157,10 @@ int main(int argc, char *argv[])
                 (field1(state.IDEX.instr) == field0(state.IFID.instr) 
                     || field1(state.IDEX.instr) == field1(state.IFID.instr))) {
             newState.IDEX.instr = NOOPINSTRUCTION;
+            newState.IDEX.offset = 0;
+            newState.IDEX.pcPlus1 = 0;
+            newState.IDEX.readRegA = 0;
+            newState.IDEX.readRegB = 0;
             newState.pc = state.pc;
             newState.IFID = state.IFID;
         }
@@ -226,20 +230,20 @@ int main(int argc, char *argv[])
         switch (opcode(state.IDEX.instr)) {
         /* add */
         case 0:
-            newState.EXMEM.aluResult = state.IDEX.readRegA + state.IDEX.readRegB;
+            newState.EXMEM.aluResult = aluInput0 + aluInput1;
             break;
         /* nor */
         case 1:
-            newState.EXMEM.aluResult = ~(state.IDEX.readRegA | state.IDEX.readRegB);
+            newState.EXMEM.aluResult = ~(aluInput0 | aluInput1);
             break;
         /* beq */
         case 4:
-            newState.EXMEM.aluResult = state.IDEX.readRegA - state.IDEX.readRegB;
+            newState.EXMEM.aluResult = aluInput0 - aluInput1;
             break;
         /* lw, sw */
         case 2:
         case 3:
-            newState.EXMEM.aluResult = state.IDEX.readRegA + state.IDEX.offset;
+            newState.EXMEM.aluResult = aluInput0 + aluInput1;
         }
 
         newState.EXMEM.instr = state.IDEX.instr;
