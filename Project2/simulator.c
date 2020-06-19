@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
         /* FOR Rt */
             /* if EX hazard */
             if (((opcode(state.EXMEM.instr) == 0 || opcode(state.EXMEM.instr) == 1) 
-                    && field2(state.EXMEM.instr) != 0 && field2(state.EXMEM.instr) == field0(state.IDEX.instr))
+                    && field2(state.EXMEM.instr) != 0 && field2(state.EXMEM.instr) == field1(state.IDEX.instr))
                 || (opcode(state.EXMEM.instr) == 2 && field1(state.EXMEM.instr) != 0 
                     && field1(state.EXMEM.instr) == field1(state.IDEX.instr))) {
                 
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
             }
             /* if MEM hazard no EX hazard */
             else if (((opcode(state.MEMWB.instr) == 0 || opcode(state.MEMWB.instr) == 1) 
-                    && field2(state.MEMWB.instr) != 0 && field2(state.MEMWB.instr) == field0(state.IDEX.instr))
+                    && field2(state.MEMWB.instr) != 0 && field2(state.MEMWB.instr) == field1(state.IDEX.instr))
                 || (opcode(state.MEMWB.instr) == 2 && field1(state.MEMWB.instr) != 0 
                     && field1(state.MEMWB.instr) == field1(state.IDEX.instr))) {
                 
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
             }
             /* if WB hazard no EX, MEM hazard */
             else if (((opcode(state.WBEND.instr) == 0 || opcode(state.WBEND.instr) == 1) 
-                    && field2(state.WBEND.instr) != 0 && field2(state.WBEND.instr) == field0(state.IDEX.instr))
+                    && field2(state.WBEND.instr) != 0 && field2(state.WBEND.instr) == field1(state.IDEX.instr))
                 || (opcode(state.WBEND.instr) == 2 && field1(state.WBEND.instr) != 0 
                     && field1(state.WBEND.instr) == field1(state.IDEX.instr))) {
                 
